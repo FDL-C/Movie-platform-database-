@@ -1,0 +1,65 @@
+echo '================================================================'
+— BUSINESS PROBLEMS (Q1–Q7)'
+\echo '================================================================'
+
+\echo ''
+\echo '--- Q1. Count Movies vs TV Shows ---'
+EXPLAIN ANALYZE
+SELECT type, COUNT(*) AS total_count
+FROM netflix
+GROUP BY type
+ORDER BY total_count DESC;
+
+\echo ''
+\echo '--- Q2. Most Common Rating per Type ---'
+WITH rating_rank AS (
+  SELECT type, rating, COUNT(*) AS cnt,
+         RANK() OVER (PARTITION BY type ORDER BY COUNT(*) DESC) AS rnk
+  FROM netflix
+  GROUP BY type, rating
+)
+SELECT type, rating AS most_common_rating, cnt AS count
+FROM rating_rank
+WHERE rnk = 1;
+
+\echo ''
+\echo '--- Q3. All Movies Released in 2020 ---'
+EXPLAIN ANALYZE
+SELECT show_id, title, release_year
+FROM netflix
+WHERE type = 'Movie' AND release_year = 2020
+ORDER BY title;
+
+\echo ''
+\echo '--- Q4. Top 5 Countries with Most Content ---'
+SELECT
+  TRIM(UNNEST(STRING_TO_ARRAY(country, ','))) AS country_name,
+  COUNT(*) AS content_count
+FROM netflix
+GROUP BY country_name
+ORDER BY content_count DESC
+LIMIT 5;
+
+\echo ''
+\echo '--- Q5. Longest Movie ---'
+SELECT show_id, title, duration,
+       CAST(REGEXP_REPLACE(duration, '[^0-9]', '', 'g') AS INT) AS minutes
+FROM netflix
+WHERE type = 'Movie'
+ORDER BY minutes DESC
+LIMIT 1;
+
+\echo ''
+\echo '--- Q6. Content Added in the Last 5 Years ---'
+SELECT show_id, title, type,
+       TO_DATE(date_added, 'Month DD, YYYY') AS parsed_date
+FROM netflix
+WHERE TO_DATE(date_added, 'Month DD, YYYY') >= CURRENT_DATE - INTERVAL '5 years'
+ORDER BY parsed_date DESC;
+
+\echo ''
+\echo '--- Q7. All Movies/TV Shows by Director Rajiv Chilaka ---'
+EXPLAIN ANALYZE
+SELECT show_id, type, title, director, release_year
+FROM netflix
+WHERE director = 'Rajiv Chilaka';
