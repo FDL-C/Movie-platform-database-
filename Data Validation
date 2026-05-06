@@ -1,0 +1,73 @@
+'================================================================'
+\echo 'SECTION 1 — DATA VALIDATION'
+\echo '================================================================'
+
+\echo ''
+\echo '--- 1A. Total Row Count ---'
+SELECT COUNT(*) AS total_rows FROM netflix;
+
+\echo ''
+\echo '--- 1B. Duplicate show_id ---'
+SELECT show_id, COUNT(*) AS cnt
+FROM netflix
+GROUP BY show_id
+HAVING COUNT(*) > 1;
+
+\echo ''
+\echo '--- 1C. Duplicate title ---'
+SELECT title, COUNT(*) AS cnt
+FROM netflix
+GROUP BY title
+HAVING COUNT(*) > 1;
+
+\echo ''
+\echo '--- 1D. NULL / Missing Values per Column ---'
+SELECT
+  SUM(CASE WHEN show_id      IS NULL OR show_id      = '' THEN 1 ELSE 0 END) AS missing_show_id,
+  SUM(CASE WHEN type         IS NULL OR type         = '' THEN 1 ELSE 0 END) AS missing_type,
+  SUM(CASE WHEN title        IS NULL OR title        = '' THEN 1 ELSE 0 END) AS missing_title,
+  SUM(CASE WHEN director     IS NULL OR director     = '' THEN 1 ELSE 0 END) AS missing_director,
+  SUM(CASE WHEN casts        IS NULL OR casts        = '' THEN 1 ELSE 0 END) AS missing_casts,
+  SUM(CASE WHEN country      IS NULL OR country      = '' THEN 1 ELSE 0 END) AS missing_country,
+  SUM(CASE WHEN date_added   IS NULL OR date_added   = '' THEN 1 ELSE 0 END) AS missing_date_added,
+  SUM(CASE WHEN release_year IS NULL                      THEN 1 ELSE 0 END) AS missing_release_year,
+  SUM(CASE WHEN rating       IS NULL OR rating       = '' THEN 1 ELSE 0 END) AS missing_rating,
+  SUM(CASE WHEN duration     IS NULL OR duration     = '' THEN 1 ELSE 0 END) AS missing_duration,
+  SUM(CASE WHEN listed_in    IS NULL OR listed_in    = '' THEN 1 ELSE 0 END) AS missing_listed_in,
+  SUM(CASE WHEN description  IS NULL OR description  = '' THEN 1 ELSE 0 END) AS missing_description
+FROM netflix;
+
+\echo ''
+\echo '--- 1E. Rows with NULL Director (Content without Director) ---'
+SELECT show_id, title, type
+FROM netflix
+WHERE director IS NULL;
+
+\echo ''
+\echo '--- 1F. Consistency Check — Invalid Type Values ---'
+SELECT DISTINCT type FROM netflix ORDER BY type;
+
+\echo ''
+\echo '--- 1G. Consistency Check — release_year Range ---'
+SELECT MIN(release_year) AS min_year, MAX(release_year) AS max_year FROM netflix;
+
+\echo ''
+\echo '--- 1H. Consistency Check — Unexpected Rating Values ---'
+SELECT DISTINCT rating, COUNT(*) FROM netflix GROUP BY rating ORDER BY rating;
+
+\echo ''
+\echo '--- 1I. Duration Format Check (Movies should be in min, TV Shows in Seasons) ---'
+SELECT type, duration
+FROM netflix
+WHERE (type = 'Movie'   AND duration NOT LIKE '%min%')
+   OR (type = 'TV Show' AND duration NOT LIKE '%Season%')
+LIMIT 10;
+
+\echo ''
+\echo '--- 1J. Date Format Consistency Check ---'
+SELECT date_added, COUNT(*) AS cnt
+FROM netflix
+WHERE date_added !~ '^[A-Za-z]+ \d{1,2}, \d{4}$'
+GROUP BY date_added;
+
+PSQL
