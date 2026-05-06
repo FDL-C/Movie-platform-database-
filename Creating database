@@ -1,0 +1,43 @@
+-- ============================================================
+-- MOVIES PLATFORM DATABASE — NETFLIX TABLE
+-- ============================================================
+ 
+DROP TABLE IF EXISTS netflix;
+ 
+CREATE TABLE netflix (
+    show_id      VARCHAR(5),
+    type         VARCHAR(10),
+    title        VARCHAR(250),
+    director     VARCHAR(550),
+    casts        VARCHAR(1050),
+    country      VARCHAR(550),
+    date_added   VARCHAR(55),
+    release_year INT,
+    rating       VARCHAR(15),
+    duration     VARCHAR(15),
+    listed_in    VARCHAR(250),
+    description  VARCHAR(550)
+);
+
+-- ============================================================
+-- INSERT 100 RECORDS
+-- ============================================================
+ 
+INSERT INTO netflix (show_id, type, title, director, casts,country, date_added,released_year,
+rating, duration, listed_in,description)
+VALUES (......) 
+
+-- ============================================================
+-- INDEXING FOR QUERY OPTIMIZATION
+-- ============================================================
+ 
+CREATE INDEX idx_netflix_type          ON netflix(type);
+CREATE INDEX idx_netflix_country       ON netflix(country);
+CREATE INDEX idx_netflix_release_year  ON netflix(release_year);
+CREATE INDEX idx_netflix_director      ON netflix(director);
+CREATE INDEX idx_netflix_rating        ON netflix(rating);
+CREATE INDEX idx_netflix_listed_in     ON netflix(listed_in);
+CREATE INDEX idx_netflix_date_added    ON netflix(date_added);
+CREATE INDEX idx_netflix_casts         ON netflix(casts);
+CREATE INDEX idx_netflix_description   ON netflix(description); 
+
