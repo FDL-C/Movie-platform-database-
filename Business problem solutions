@@ -73,7 +73,18 @@ WHERE type = 'TV Show'
   AND CAST(REGEXP_REPLACE(duration, '[^0-9]', '', 'g') AS INT) > 5
 ORDER BY num_seasons DESC;
 
-\echo ''
+Q8. TV Shows with More Than 5 Seasons ---
+ show_id |       title       | duration  | num_seasons 
+---------+-------------------+-----------+-------------
+ s99     | The Blacklist     | 9 Seasons |           9
+ s67     | Grace and Frankie | 7 Seasons |           7
+ s8      | The Crown         | 6 Seasons |           6
+ s35     | Peaky Blinders    | 6 Seasons |           6
+ s47     | Better Call Saul  | 6 Seasons |           6
+ s81     | Black Mirror      | 6 Seasons |           6
+(6 rows
+
+
 \echo '--- Q9. Number of Content Items per Genre ---'
 SELECT
   TRIM(genre) AS genre,
