@@ -70,4 +70,16 @@ FROM netflix
 WHERE date_added !~ '^[A-Za-z]+ \d{1,2}, \d{4}$'
 GROUP BY date_added;
 
-PSQL
+Data Validation Results
+Check  Result
+Total rows100 ✅
+Duplicate show_id  0 — No duplicates ✅
+Duplicate title    0 — No duplicates ✅
+Missing director   5 records (intentional — real Netflix data often has missing directors) ⚠️
+All other columns  0 missing values ✅
+Type values        Only Movie and TV Show — consistent ✅
+release_year range  2008–2023 — valid ✅
+Duration format     All movies in min, all TV shows in Seasons — consistent ✅
+Date format         All match Month DD, YYYY pattern ✅
+5 records with NULL director: La Casa de Papel, Dil Dhadakne Do, 
+Chilling Adventures, Tujhse Naraaz Nahi, Rekha ki Kahani
