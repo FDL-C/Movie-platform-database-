@@ -175,7 +175,7 @@ GROUP BY actor_name
 ORDER BY movie_appearances DESC
 LIMIT 10;
 
-\echo ''
+\echo
 \echo '--- Q15 (Bonus). Categorize Content: Bad (kill/violence) vs Good ---'
 EXPLAIN ANALYZE
 SELECT
@@ -192,4 +192,12 @@ FROM (
 ) classified
 GROUP BY category
 ORDER BY total_content DESC;
+
+Output
+
+ category | total_content 
+----------+---------------
+ Good     |            91
+ Bad      |             9
+(2 rows)
 
