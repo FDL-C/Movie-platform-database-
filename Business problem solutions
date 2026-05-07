@@ -110,7 +110,16 @@ GROUP BY release_year
 ORDER BY yearly_count DESC
 LIMIT 5;
 
-\echo ''
+release_year | yearly_count | avg_content_per_year 
+--------------+--------------+----------------------
+         2020 |           17 |                 2.13
+         2019 |            6 |                 0.75
+         2021 |            6 |                 0.75
+         2018 |            3 |                 0.38
+         2022 |            2 |                 0.25
+(5 rows)
+
+
 \echo '--- Q11. Movies that are Documentaries ---'
 SELECT show_id, title, listed_in
 FROM netflix
@@ -119,14 +128,29 @@ WHERE type = 'Movie'
    OR listed_in ILIKE '%Documentary%'
 ORDER BY title;
 
-\echo ''
+show_id |   title    |     listed_in      
+---------+------------+--------------------
+ s20     | Tiger King | Crime, Documentary
+(1 row
+
+
 \echo '--- Q12. All Content without a Director ---'
 SELECT show_id, type, title
 FROM netflix
 WHERE director IS NULL OR director = ''
 ORDER BY type, title;
 
-\echo ''
+  All Content without a Director ---
+ show_id |  type   |        title        
+---------+---------+---------------------
+ s66     | Movie   | Dil Dhadakne Do
+ s86     | Movie   | Tujhse Naraaz Nahi
+ s73     | TV Show | Chilling Adventures
+ s31     | TV Show | La Casa de Papel
+ s91     | TV Show | Rekha ki Kahani
+(5 rows)
+
+
 \echo '--- Q13. Movies with Salman Khan in Last 10 Years ---'
 SELECT show_id, title, release_year, casts
 FROM netflix
@@ -134,8 +158,9 @@ WHERE type = 'Movie'
   AND casts ILIKE '%Salman Khan%'
   AND release_year >= EXTRACT(YEAR FROM CURRENT_DATE) - 10
 ORDER BY release_year DESC;
+(4 rows)
 
-\echo ''
+
 \echo '--- Q14. Top 10 Actors in Indian Movies (by Appearance Count) ---'
 SELECT
   TRIM(actor) AS actor_name,
