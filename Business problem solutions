@@ -63,3 +63,97 @@ EXPLAIN ANALYZE
 SELECT show_id, type, title, director, release_year
 FROM netflix
 WHERE director = 'Rajiv Chilaka';
+
+
+\echo '--- Q8. TV Shows with More Than 5 Seasons ---'
+SELECT show_id, title, duration,
+       CAST(REGEXP_REPLACE(duration, '[^0-9]', '', 'g') AS INT) AS num_seasons
+FROM netflix
+WHERE type = 'TV Show'
+  AND CAST(REGEXP_REPLACE(duration, '[^0-9]', '', 'g') AS INT) > 5
+ORDER BY num_seasons DESC;
+
+\echo ''
+\echo '--- Q9. Number of Content Items per Genre ---'
+SELECT
+  TRIM(genre) AS genre,
+  COUNT(*) AS content_count
+FROM (
+  SELECT UNNEST(STRING_TO_ARRAY(listed_in, ',')) AS genre
+  FROM netflix
+) sub
+GROUP BY genre
+ORDER BY content_count DESC;
+
+\echo ''
+\echo '--- Q10. Top 5 Years — Avg Content Release in India ---'
+SELECT
+  release_year,
+  COUNT(*) AS yearly_count,
+  ROUND(COUNT(*) * 1.0 /
+    (SELECT COUNT(DISTINCT release_year) FROM netflix WHERE country ILIKE '%India%'), 2)
+    AS avg_content_per_year
+FROM netflix
+WHERE country ILIKE '%India%'
+GROUP BY release_year
+ORDER BY yearly_count DESC
+LIMIT 5;
+
+\echo ''
+\echo '--- Q11. Movies that are Documentaries ---'
+SELECT show_id, title, listed_in
+FROM netflix
+WHERE type = 'Movie'
+  AND listed_in ILIKE '%documentary%'
+   OR listed_in ILIKE '%Documentary%'
+ORDER BY title;
+
+\echo ''
+\echo '--- Q12. All Content without a Director ---'
+SELECT show_id, type, title
+FROM netflix
+WHERE director IS NULL OR director = ''
+ORDER BY type, title;
+
+\echo ''
+\echo '--- Q13. Movies with Salman Khan in Last 10 Years ---'
+SELECT show_id, title, release_year, casts
+FROM netflix
+WHERE type = 'Movie'
+  AND casts ILIKE '%Salman Khan%'
+  AND release_year >= EXTRACT(YEAR FROM CURRENT_DATE) - 10
+ORDER BY release_year DESC;
+
+\echo ''
+\echo '--- Q14. Top 10 Actors in Indian Movies (by Appearance Count) ---'
+SELECT
+  TRIM(actor) AS actor_name,
+  COUNT(*) AS movie_appearances
+FROM (
+  SELECT UNNEST(STRING_TO_ARRAY(casts, ',')) AS actor
+  FROM netflix
+  WHERE country ILIKE '%India%'
+    AND type = 'Movie'
+) sub
+GROUP BY actor_name
+ORDER BY movie_appearances DESC
+LIMIT 10;
+
+\echo ''
+\echo '--- Q15 (Bonus). Categorize Content: Bad (kill/violence) vs Good ---'
+EXPLAIN ANALYZE
+SELECT
+  category,
+  COUNT(*) AS total_content
+FROM (
+  SELECT
+    CASE
+      WHEN description ILIKE '%kill%' OR description ILIKE '%violence%'
+      THEN 'Bad'
+      ELSE 'Good'
+    END AS category
+  FROM netflix
+) classified
+GROUP BY category
+ORDER BY total_content DESC;
+
